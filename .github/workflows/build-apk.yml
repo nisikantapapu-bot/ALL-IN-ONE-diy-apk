@@ -1,0 +1,98 @@
+name: Build & Release Android APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    tags:
+      - "v*"
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Publish a new GitHub Release with APK'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  build:
+    name: Build ALL IN ONE APK
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+
+      - name: Make Gradlew Executable
+        run: chmod +x ./gradlew
+
+      - name: Prepare Keystore & Environment Secrets
+        run: |
+          touch .env
+          if [ ! -f debug.keystore ]; then
+            echo "Generating debug.keystore..."
+            keytool -genkey -v \
+              -keystore debug.keystore \
+              -storepass android \
+              -alias androiddebugkey \
+              -keypass android \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
+      - name: Build Debug APK
+        run: ./gradlew :app:assembleDebug --stacktrace
+
+      - name: Rename APK for Easy Distribution
+        run: |
+          mkdir -p build/dist
+          cp app/build/outputs/apk/debug/app-debug.apk build/dist/ALL-IN-ONE-debug.apk
+          echo "APK successfully built:"
+          ls -lh build/dist/
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ALL-IN-ONE-debug-apk
+          path: build/dist/ALL-IN-ONE-debug.apk
+          retention-days: 30
+
+      - name: Create GitHub Release
+        if: (startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.create_release)) && github.repository == 'nisikantapapu-bot/ALL-IN-ONE-diy-apk'
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ALL IN ONE Android Release ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name || 'v1.0.0' }}
+          draft: false
+          prerelease: false
+          files: build/dist/ALL-IN-ONE-debug.apk
+          body: |
+            ## 🛍️ ALL IN ONE Android Application (Ragadi, Jajpur Road)
+            
+            ### 📱 What's New in this Build:
+            - Native Android APK generated automatically by GitHub Actions.
+            - Full catalog of Groceries, Household, Essentials, Electronics & Clothing.
+            - 15 KM Radius Express Doorstep Delivery calculation from Ragadi Store.
+            - Cash on Delivery (COD) and Instant UPI Payments (GPay, PhonePe, Paytm).
+            - Shop Owner Admin Dashboard with Live Inventory & Order Management.
+            
+            ### ⬇️ Download & Install:
+            1. Download `ALL-IN-ONE-debug.apk` attached below.
+            2. On your phone, tap the file to install.
+            3. If prompted, allow "Install unknown apps" in Settings.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
