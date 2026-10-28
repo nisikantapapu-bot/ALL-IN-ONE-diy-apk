@@ -1,0 +1,8 @@
+{
+  "name": "ALL IN ONE",
+  "description": "Local online store & express delivery app for Ragadi, Jajpur Road, Odisha",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
