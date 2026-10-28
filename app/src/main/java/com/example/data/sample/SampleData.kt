@@ -17,15 +17,15 @@ object SampleData {
 
     val defaultStoreConfig = StoreConfigEntity(
         id = 1,
-        storeName = "ALL IN ONE",
+        storeName = "ALL IN ONE SHOP",
         tagline = "Apna Supermarket & Express Delivery",
         address = "Ragadi Bazar, Jajpur Road, Odisha - 755019",
         storeLat = 20.9507,
         storeLng = 86.1344,
         phone = "+919437123456",
         whatsappPhone = "919437123456",
-        upiId = "allinone.ragadi@okaxis",
-        upiName = "ALL IN ONE STORE",
+        upiId = "allinoneshop.ragadi@okaxis",
+        upiName = "ALL IN ONE SHOP",
         maxDeliveryRadiusKm = 15.0,
         baseDeliveryFee = 20.0,
         baseDistanceKm = 3.0,

@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "ALL IN ONE"
+rootProject.name = "ALL IN ONE SHOP"
 
 include(":app")
